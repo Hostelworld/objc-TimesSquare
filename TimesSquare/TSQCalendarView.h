@@ -14,6 +14,10 @@ typedef enum {
     TSQCalendarSelectionModeDateRange
 } TSQCalendarSelectionMode;
 
+typedef NS_ENUM(NSInteger, TSQCalendarError){
+    TSQCalendarErrorAttemptToSelectDisabledDate = 0,
+    TSQCalendarErrorSelectionMaxRange
+};
 
 @protocol TSQCalendarViewDelegate;
 
@@ -74,6 +78,12 @@ typedef enum {
  */
 @property (nonatomic, strong) NSDate *selectedEndDate;
 
+/** 
+ If there's an error after a date was selected, store it here
+ */
+@property (nonatomic) TSQCalendarError *selectionError;
+
+
 /** @name Calendar Configuration */
 
 /** The calendar type to use when displaying.
@@ -102,6 +112,10 @@ typedef enum {
  This property is roughly equivalent to the one defined on `UIScrollView` except the snapping is to months rather than integer multiples of the view's bounds.
  */
 @property (nonatomic) BOOL pagingEnabled;
+
+/** Whether or not the calendar is scrolling
+ */
+@property (nonatomic, readonly) BOOL isScrolling;
 
 /** The distance from the edges of the view to where the content begins.
  
@@ -190,6 +204,14 @@ typedef enum {
  @param calendarView The calendar view that is selecting a date.
  */
 - (void)resetSelectedDatesForCalendarView:(TSQCalendarView *)calendarView;
+
+- (void)calendarView:(TSQCalendarView *)calendarView didFailToSelectDateWithError:(TSQCalendarError)error;
+
+/** Tells the delegate that a start date was selected for a range of dates.
+ 
+ @param calendarView The calendar view that is selecting a date.
+ @param date Midnight on the date being selected.
+ */
 
 
 @end

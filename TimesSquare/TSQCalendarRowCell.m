@@ -125,7 +125,6 @@ static const NSInteger maxValueForRange = 14;
         button.enabled = NO;
         UIColor *backgroundPattern = [UIColor colorWithPatternImage:[self notThisMonthBackgroundImage]];
         button.backgroundColor = backgroundPattern;
-        button.titleLabel.backgroundColor = backgroundPattern;
     }
     self.notThisMonthButtons = notThisMonthButtons;
 }
@@ -170,6 +169,10 @@ static const NSInteger maxValueForRange = 14;
             }
             UIButton *button = self.dayButtons[index];
             button.enabled = ![self.calendarView.delegate respondsToSelector:@selector(calendarView:shouldSelectDate:)] || [self.calendarView.delegate calendarView:self.calendarView shouldSelectDate:date];
+            
+            if (self.disablesDatesEarlierThanToday && (self.todayDateComponents.year == thisDateComponents.year && self.todayDateComponents.month == thisDateComponents.month && thisDateComponents.day < self.todayDateComponents.day)) {
+                button.enabled = NO;
+            }
         }
 
         date = [self.calendar dateByAddingComponents:offset toDate:date options:0];
@@ -191,17 +194,20 @@ static const NSInteger maxValueForRange = 14;
     [self setNeedsLayout];
 }
 
-- (IBAction)dateButtonPressed:(id)sender;
+- (void)selectDate:(NSDate *)selectedDate
 {
-    NSDateComponents *offset = [NSDateComponents new];
-    offset.day = [self.dayButtons indexOfObject:sender];
-    NSDate *selectedDate = [self.calendar dateByAddingComponents:offset toDate:self.beginningDate options:0];
+    self.calendarView.selectionError = nil;
     
+    if (self.calendarView.isScrolling) {
+        return;
+    }
+
     if (self.calendarView.selectionMode == TSQCalendarSelectionModeDay) {
         self.calendarView.selectedDate = ([self.calendarView.selectedDate isEqual:selectedDate]) ? nil : selectedDate;
     } else {
         if (self.calendarView.selectedEndDate) {
-            self.calendarView.selectedStartDate = nil;
+            self.calendarView.selectedEndDate = nil;
+            self.calendarView.selectedStartDate = selectedDate;
         } else if (self.calendarView.selectedStartDate && ([selectedDate compare:self.calendarView.selectedStartDate] == NSOrderedDescending)) {
             if ([self differenceInDaysBetweenStartDate:self.calendarView.selectedStartDate andEndDate:selectedDate] <= maxValueForRange) {
                 self.calendarView.selectedEndDate = selectedDate;
@@ -214,6 +220,19 @@ static const NSInteger maxValueForRange = 14;
             }
         }
     }
+    
+    if (self.calendarView.selectedStartDate && selectedDate && [self differenceInDaysBetweenStartDate:self.calendarView.selectedStartDate andEndDate:selectedDate] > maxValueForRange) {
+        self.calendarView.selectionError = TSQCalendarErrorSelectionMaxRange;
+    }
+}
+
+- (IBAction)dateButtonPressed:(id)sender;
+{
+    NSDateComponents *offset = [NSDateComponents new];
+    offset.day = [self.dayButtons indexOfObject:sender];
+    NSDate *selectedDate = [self.calendar dateByAddingComponents:offset toDate:self.beginningDate options:0];
+    
+    [self selectDate:selectedDate];
 }
 
 - (NSInteger)differenceInDaysBetweenStartDate:(NSDate *)startDate andEndDate:(NSDate *)endDate

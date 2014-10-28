@@ -27,9 +27,9 @@
     if (!self) {
         return nil;
     }
-
+    
     [self _TSQCalendarView_commonInit];
-
+    
     return self;
 }
 
@@ -39,7 +39,7 @@
     if (!self) {
         return nil;
     }
-
+    
     [self _TSQCalendarView_commonInit];
     
     return self;
@@ -53,7 +53,7 @@
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
     _selectionMode = TSQCalendarSelectionModeDay;
-    [self addSubview:_tableView];    
+    [self addSubview:_tableView];
 }
 
 - (void)dealloc;
@@ -65,7 +65,7 @@
 - (NSCalendar *)calendar;
 {
     if (!_calendar) {
-        self.calendar = [NSCalendar currentCalendar];
+        self.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     }
     return _calendar;
 }
@@ -110,18 +110,24 @@
 - (void)setFirstDate:(NSDate *)firstDate;
 {
     // clamp to the beginning of its month
-    _firstDate = [self clampDate:firstDate toComponents:NSMonthCalendarUnit|NSYearCalendarUnit];
+    _firstDate = [self clampDate:firstDate toComponents:NSCalendarUnitMonth|NSCalendarUnitYear];
 }
 
 - (void)setLastDate:(NSDate *)lastDate;
 {
     // clamp to the end of its month
-    NSDate *firstOfMonth = [self clampDate:lastDate toComponents:NSMonthCalendarUnit|NSYearCalendarUnit];
+    NSDate *firstOfMonth = [self clampDate:lastDate toComponents:NSCalendarUnitMonth|NSCalendarUnitYear];
     
     NSDateComponents *offsetComponents = [[NSDateComponents alloc] init];
     offsetComponents.month = 1;
     offsetComponents.day = -1;
     _lastDate = [self.calendar dateByAddingComponents:offsetComponents toDate:firstOfMonth options:0];
+}
+
+- (BOOL)isScrolling
+{
+    return (self.tableView.isDragging || self.tableView.isDecelerating);
+    
 }
 
 - (void)scrollToDate:(NSDate *)date animated:(BOOL)animated;
@@ -208,10 +214,10 @@
     if ([self.delegate respondsToSelector:@selector(calendarView:shouldSelectDate:)] && ![self.delegate calendarView:self shouldSelectDate:startOfDay]) {
         return;
     }
-        
+    
     NSIndexPath *newIndexPath = [self indexPathForRowAtDate:startOfDay];
     CGRect newIndexPathRect = [self.tableView rectForRowAtIndexPath:newIndexPath];
-    CGRect scrollBounds = self.tableView.bounds;    
+    CGRect scrollBounds = self.tableView.bounds;
     if (self.pagingEnabled) {
         CGRect sectionRect = [self.tableView rectForSection:newIndexPath.section];
         [self.tableView setContentOffset:sectionRect.origin animated:YES];
@@ -283,6 +289,15 @@
     }
 }
 
+- (void)setSelectionError:(TSQCalendarError *)selectionError
+{
+    _selectionError = selectionError;
+    
+    if (selectionError && [self.delegate respondsToSelector:@selector(calendarView:didFailToSelectDateWithError:)]) {
+        [self.delegate calendarView:self didFailToSelectDateWithError:selectionError];
+    }
+}
+
 - (void)updateSelectedDates
 {
     for (NSDate *date in _selectedDates) {
@@ -306,7 +321,7 @@
 
 - (NSInteger)sectionForDate:(NSDate *)date;
 {
-  return [self.calendar components:NSMonthCalendarUnit fromDate:self.firstDate toDate:date options:0].month;
+    return [self.calendar components:NSCalendarUnitMonth fromDate:self.firstDate toDate:date options:0].month;
 }
 
 - (NSIndexPath *)indexPathForRowAtDate:(NSDate *)date;
@@ -314,13 +329,13 @@
     if (!date) {
         return nil;
     }
-
+    
     NSInteger section = [self sectionForDate:date];
     NSDate *firstOfMonth = [self firstOfMonthForSection:section];
-    NSInteger firstWeek = [self.calendar components:NSWeekOfYearCalendarUnit fromDate:firstOfMonth].weekOfYear;
-    NSInteger targetWeek = [self.calendar components:NSWeekOfYearCalendarUnit fromDate:date].weekOfYear;
+    NSInteger firstWeek = [self.calendar components:NSCalendarUnitWeekOfYear fromDate:firstOfMonth].weekOfYear;
+    NSInteger targetWeek = [self.calendar components:NSCalendarUnitWeekOfYear fromDate:date].weekOfYear;
     if (targetWeek < firstWeek) {
-        targetWeek = [self.calendar maximumRangeOfUnit:NSWeekOfYearCalendarUnit].length;
+        targetWeek = [self.calendar maximumRangeOfUnit:NSCalendarUnitWeekOfYear].length;
     }
     return [NSIndexPath indexPathForRow:(self.pinsHeaderToTop ? 0 : 1) + targetWeek - firstWeek inSection:section];
 }
@@ -334,7 +349,7 @@
     while ([end compare:current] != NSOrderedAscending) {
         [dates addObject:current];
         NSDate *nextDay = [self.calendar dateByAddingComponents:components toDate:current options:0];
-        current = [self clampDate:nextDay toComponents:NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit];
+        current = [self clampDate:nextDay toComponents:NSCalendarUnitDay|NSCalendarUnitMonth|NSCalendarUnitYear];
     }
     return  dates;
 }
@@ -343,6 +358,7 @@
 
 - (void)layoutSubviews;
 {
+    [super layoutSubviews];
     if (self.pinsHeaderToTop) {
         if (!self.headerView) {
             self.headerView = [self makeHeaderCellWithIdentifier:nil];
@@ -411,7 +427,7 @@
     NSDate *firstOfMonth = [self firstOfMonthForSection:indexPath.section];
     [(TSQCalendarCell *)cell setFirstOfMonth:firstOfMonth];
     if (indexPath.row > 0 || self.pinsHeaderToTop) {
-        NSInteger ordinalityOfFirstDay = [self.calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSWeekCalendarUnit forDate:firstOfMonth];
+        NSInteger ordinalityOfFirstDay = [self.calendar ordinalityOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitWeekOfMonth forDate:firstOfMonth];
         NSDateComponents *dateComponents = [NSDateComponents new];
         dateComponents.day = 1 - ordinalityOfFirstDay;
         dateComponents.week = indexPath.row - (self.pinsHeaderToTop ? 0 : 1);
