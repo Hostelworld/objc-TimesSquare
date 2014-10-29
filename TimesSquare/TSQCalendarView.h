@@ -113,6 +113,11 @@ typedef NS_ENUM(NSInteger, TSQCalendarError){
  */
 @property (nonatomic) BOOL pagingEnabled;
 
+/** Whether or not to show heading as part of paged scrolling
+ */
+
+@property (nonatomic) BOOL displayHeaderWhenPaging;
+
 /** Whether or not the calendar is scrolling
  */
 @property (nonatomic, readonly) BOOL isScrolling;
