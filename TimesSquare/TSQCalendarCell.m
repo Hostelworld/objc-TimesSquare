@@ -53,7 +53,7 @@
     self.textColorFirstAndlastRangeDay = [UIColor whiteColor];
     self.textColorMiddleRangeDays = [UIColor colorWithRed:28.0f/255.0f green:68.0f/255.0f blue:135.0f/255.0f alpha:1.0];
     self.textFont = [UIFont systemFontOfSize:16.f];
-
+    
     return self;
 }
 
@@ -66,7 +66,7 @@
 {
     static NSUInteger daysInWeek = 0;
     if (daysInWeek == 0) {
-        daysInWeek = [self.calendar maximumRangeOfUnit:NSWeekdayCalendarUnit].length;
+        daysInWeek = [self.calendar maximumRangeOfUnit:NSCalendarUnitWeekday].length;
     }
     return daysInWeek;
 }
@@ -96,7 +96,6 @@
     [super layoutSubviews];
     
     UIEdgeInsets insets = self.calendarView.contentInset;
-    
     
     CGRect insetRect = UIEdgeInsetsInsetRect(self.bounds, insets);
     insetRect.origin.y = CGRectGetMinY(self.bounds);
@@ -129,7 +128,7 @@
         [self layoutViewsForColumnAtIndex:displayIndex inRect:columnBounds];
         start += width + self.columnSpacing;
     }
-
+    
 }
 
 @end
