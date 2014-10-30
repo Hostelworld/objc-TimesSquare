@@ -21,6 +21,8 @@
 
 @implementation TSQCalendarView
 
+const NSInteger headingOriginInset = 64;
+
 - (id)initWithCoder:(NSCoder *)aDecoder;
 {
     self = [super initWithCoder:aDecoder];
@@ -138,7 +140,7 @@
 - (void)scrollToDate:(NSDate *)date animated:(BOOL)animated atScrollPosition:(UITableViewScrollPosition)scrollPosition;
 {
     NSIndexPath *path;
-    if (self.pinsHeaderToTop) {
+    if (self.pinsHeaderToTop || self.pagingEnabled) {
         NSInteger section = [self sectionForDate:date];
         path = [NSIndexPath indexPathForRow:0 inSection:section];
     } else {
@@ -463,6 +465,9 @@
             section++;
         }
         CGRect sectionRect = [self.tableView rectForSection:section];
+        if (self.displayHeaderWhenPaging) {
+            sectionRect.origin.y -= headingOriginInset;
+        }
         *targetContentOffset = sectionRect.origin;
     }
 }
