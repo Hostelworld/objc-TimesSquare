@@ -52,6 +52,7 @@
     _tableView.delegate = self;
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+    _tableView.bounces = NO;
     _selectionMode = TSQCalendarSelectionModeDay;
     [self addSubview:_tableView];    
 }
