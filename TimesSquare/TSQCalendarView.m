@@ -334,11 +334,9 @@ const NSInteger headingOriginInset = 64;
     
     NSInteger section = [self sectionForDate:date];
     NSDate *firstOfMonth = [self firstOfMonthForSection:section];
-    NSInteger firstWeek = [self.calendar components:NSCalendarUnitWeekOfYear fromDate:firstOfMonth].weekOfYear;
-    NSInteger targetWeek = [self.calendar components:NSCalendarUnitWeekOfYear fromDate:date].weekOfYear;
-    if (targetWeek < firstWeek) {
-        targetWeek = [self.calendar maximumRangeOfUnit:NSCalendarUnitWeekOfYear].length;
-    }
+    NSInteger firstWeek = [self.calendar components:NSWeekOfMonthCalendarUnit fromDate:firstOfMonth].weekOfMonth;
+    NSInteger targetWeek = [self.calendar components:NSWeekOfMonthCalendarUnit fromDate:date].weekOfMonth;
+
     return [NSIndexPath indexPathForRow:(self.pinsHeaderToTop ? 0 : 1) + targetWeek - firstWeek inSection:section];
 }
 
