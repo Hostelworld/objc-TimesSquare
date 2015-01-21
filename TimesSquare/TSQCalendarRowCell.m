@@ -149,6 +149,7 @@ static const NSInteger maxValueForRange = 14;
         [self.dayButtons[index] setTitle:title forState:UIControlStateNormal];
         [self.dayButtons[index] setAccessibilityLabel:accessibilityLabel];
         [self.notThisMonthButtons[index] setTitle:title forState:UIControlStateNormal];
+        [self.notThisMonthButtons[index] setTitle:title forState:UIControlStateDisabled];
         [self.notThisMonthButtons[index] setAccessibilityLabel:accessibilityLabel];
         
         NSDateComponents *thisDateComponents = [self.calendar components:NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit fromDate:date];
@@ -158,10 +159,9 @@ static const NSInteger maxValueForRange = 14;
         
         NSInteger thisDayMonth = thisDateComponents.month;
         if (self.monthOfBeginningDate != thisDayMonth) {
+            [self.dayButtons[index] setHidden:YES];
             if (self.showsNotThisMonth) {
                 [self.notThisMonthButtons[index] setHidden:NO];
-            } else {
-                [self.dayButtons[index] setHidden:YES];
             }
         } else {
             if ([self.todayDateComponents isEqual:thisDateComponents]) {
