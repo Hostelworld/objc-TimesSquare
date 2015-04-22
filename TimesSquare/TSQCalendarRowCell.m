@@ -47,11 +47,13 @@ static const NSInteger maxValueForRange = 14;
 - (void)configureButton:(UIButton *)button;
 {
     button.titleLabel.font = self.textFont;
-    button.titleLabel.shadowOffset = self.shadowOffset;
     button.adjustsImageWhenDisabled = NO;
     [button setTitleColor:self.textColor forState:UIControlStateNormal];
     [button setTitleColor:self.textColorDisabled forState:UIControlStateDisabled];
-    [button setTitleShadowColor:self.textColorShadow forState:UIControlStateNormal];
+    if (!self.disablesAllTextShadowing) {
+        button.titleLabel.shadowOffset = self.shadowOffset;
+        [button setTitleShadowColor:self.textColorShadow forState:UIControlStateNormal];
+    }
     [button setBackgroundImage:nil forState:UIControlStateNormal];
 }
 
@@ -69,17 +71,24 @@ static const NSInteger maxValueForRange = 14;
             [button setTitleColor:self.textColorMiddleRangeDays forState:UIControlStateDisabled];
         }
     }
-    
-    [button setTitleShadowColor:[UIColor colorWithWhite:0.0f alpha:0.75f] forState:UIControlStateNormal];
-    button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    if (!self.disablesAllTextShadowing) {
+        if ((self.calendarView.selectedStartDate) && (!self.calendarView.selectedEndDate)) {
+            [button setTitleShadowColor:self.shadowColorFirstAndlastRangeDay forState:UIControlStateNormal];
+        } else if ((self.calendarView.selectedStartDate) && (self.calendarView.selectedEndDate)){
+            [button setTitleShadowColor:self.shadowColorMiddleRangeDays forState:UIControlStateNormal];
+        }
+        button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    }
 }
 
 - (void)configureTodayButton:(UIButton *)button;
 {
     [button setTitleColor:self.todayTextColor forState:UIControlStateNormal];
     [button setBackgroundImage:[self todayBackgroundImage] forState:UIControlStateNormal];
-    [button setTitleShadowColor:self.todayShadowColor forState:UIControlStateNormal];
-    button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    if (!self.disablesAllTextShadowing) {
+        [button setTitleShadowColor:self.todayShadowColor forState:UIControlStateNormal];
+        button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    }
 }
 
 - (void)configureFirstButton:(UIButton *)button
@@ -87,8 +96,10 @@ static const NSInteger maxValueForRange = 14;
     [button setTitleColor: self.textColorFirstAndlastRangeDay forState:UIControlStateNormal];
     [button setTitleColor: self.textColorFirstAndlastRangeDay forState:UIControlStateDisabled];
     [button setBackgroundImage:[self selectedFirstDayOfRangeBackgroundImage] forState:UIControlStateNormal];
-    [button setTitleShadowColor:[UIColor colorWithWhite:0.0f alpha:0.75f] forState:UIControlStateNormal];
-    button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    if (!self.disablesAllTextShadowing) {
+        [button setTitleShadowColor:self.shadowColorFirstAndlastRangeDay forState:UIControlStateNormal];
+        button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    }
 }
 
 - (void)configureLastButton:(UIButton *)button
@@ -96,8 +107,10 @@ static const NSInteger maxValueForRange = 14;
     [button setTitleColor: self.textColorFirstAndlastRangeDay forState:UIControlStateNormal];
     [button setTitleColor: self.textColorFirstAndlastRangeDay forState:UIControlStateDisabled];
     [button setBackgroundImage:[self selectedLastDayOfRangeBackgroundImage] forState:UIControlStateNormal];
-    [button setTitleShadowColor:[UIColor colorWithWhite:0.0f alpha:0.75f] forState:UIControlStateNormal];
-    button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    if (!self.disablesAllTextShadowing) {
+        [button setTitleShadowColor:self.shadowColorFirstAndlastRangeDay forState:UIControlStateNormal];
+        button.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f / [UIScreen mainScreen].scale);
+    }
 }
 
 - (void)createDayButtons;

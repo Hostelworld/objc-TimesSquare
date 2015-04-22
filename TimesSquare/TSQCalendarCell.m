@@ -49,9 +49,12 @@
     self.todayShadowColor = [UIColor colorWithWhite:0.0f alpha:0.75f];
     self.showsNotThisMonth = YES;
     self.disablesDatesEarlierThanToday = YES;
+    self.disablesAllTextShadowing = NO;
     
     self.textColorFirstAndlastRangeDay = [UIColor whiteColor];
     self.textColorMiddleRangeDays = [UIColor colorWithRed:28.0f/255.0f green:68.0f/255.0f blue:135.0f/255.0f alpha:1.0];
+    self.shadowColorFirstAndlastRangeDay = [UIColor grayColor];
+    self.shadowColorMiddleRangeDays = [UIColor grayColor];
     self.textFont = [UIFont systemFontOfSize:16.f];
     
     return self;
