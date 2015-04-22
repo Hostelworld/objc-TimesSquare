@@ -83,6 +83,14 @@
  */
 @property (nonatomic, strong) UIColor *textColorMiddleRangeDays;
 
+/** Text Color for the first and last day of range. Defaults to gray
+ */
+@property (nonatomic, strong) UIColor *shadowColorFirstAndlastRangeDay;
+
+/** Text Color for the middles days of range. defaults to gray
+ */
+@property (nonatomic, strong) UIColor *shadowColorMiddleRangeDays;
+
 /** The text shadow color.
  
  This is used for all text the cell draws; default is white.
@@ -124,6 +132,12 @@
  Defaults to YES.
  */
 @property (nonatomic) BOOL disablesDatesEarlierThanToday;
+
+/** Whether or not to turn off all shadows
+ 
+ Defaults to NO
+ */
+@property (nonatomic) BOOL disablesAllTextShadowing;
 
 /** @name Initialization */
 
